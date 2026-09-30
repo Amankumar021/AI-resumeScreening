@@ -5,7 +5,7 @@ from app.models.job import JobProfile
 from app.database import get_db
 from app.db_models import JobDB
 from app.utils.database_utils import json_to_list, list_to_json
-
+from app.auth import get_current_user
 
 router = APIRouter(
     prefix="/jobs",
@@ -32,7 +32,8 @@ class JobProfile(BaseModel):
 @router.post("/")
 async def create_job(
     job: JobProfile,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
     db_job = JobDB(
         job_title=job.job_title,

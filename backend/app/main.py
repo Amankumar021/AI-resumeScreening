@@ -7,6 +7,8 @@ from app.api.routes.resume import router as resume_router
 from app.api.routes.job import router as job_router
 from app.api.routes.screening import router as screening_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes.auth import router as auth_router
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -31,6 +33,7 @@ app.add_middleware(
 app.include_router(resume_router)
 app.include_router(job_router)
 app.include_router(screening_router)
+app.include_router(auth_router)
 
 
 @app.get("/")

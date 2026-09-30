@@ -19,6 +19,7 @@ from app.services.text_similarity import calculate_text_similarity
 from app.services.embedding_service import calculate_semantic_similarity
 from app.services.scoring_service import calculate_final_score
 
+from app.auth import get_current_user
 
 router = APIRouter(
     prefix="/screening",
@@ -30,7 +31,8 @@ router = APIRouter(
 def screen_candidate(
     candidate_id: int,
     job_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
 
     # --------------------------------

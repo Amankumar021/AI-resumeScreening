@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, Float
 from app.database import Base
-
+from sqlalchemy import Boolean
 
 class CandidateDB(Base):
     __tablename__ = "candidates"
@@ -47,3 +47,25 @@ class ScreeningResultDB(Base):
     tfidf_score = Column(Float)
     semantic_score = Column(Float)
     overall_score = Column(Float)
+
+class UserDB(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    username = Column(
+        String,
+        unique=True,
+        index=True,
+        nullable=False
+    )
+
+    hashed_password = Column(
+        String,
+        nullable=False
+    )
+
+    is_active = Column(
+        Boolean,
+        default=True
+    )

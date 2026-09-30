@@ -19,6 +19,7 @@ from app.utils.database_utils import list_to_json
 
 from app.utils.database_utils import json_to_list
 from app.db_models import CandidateDB
+from app.auth import get_current_user
 
 router = APIRouter(
     prefix="/resumes",
@@ -39,7 +40,8 @@ ALLOWED_TYPES = {
 @router.post("/upload")
 async def upload_resume(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
 
     # 1. Validate file type
