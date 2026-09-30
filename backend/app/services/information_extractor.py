@@ -1,31 +1,7 @@
 import re
 
 from app.models.candidate import CandidateProfile
-
-
-SKILL_LIST = [
-    "Python",
-    "C++",
-    "Java",
-    "JavaScript",
-    "TypeScript",
-    "React",
-    "Node.js",
-    "SQL",
-    "MongoDB",
-    "PostgreSQL",
-    "Git",
-    "Docker",
-    "AWS",
-    "Machine Learning",
-    "Deep Learning",
-    "NLP",
-    "FastAPI",
-    "Django",
-    "Pandas",
-    "NumPy",
-    "scikit-learn"
-]
+from app.services.skill_extractor import extract_skills as shared_extract_skills
 
 
 SECTION_HEADERS = {
@@ -87,16 +63,7 @@ def extract_name(text: str):
 
 
 def extract_skills(text: str):
-
-    text_lower = text.lower()
-
-    found_skills = []
-
-    for skill in SKILL_LIST:
-        if skill.lower() in text_lower:
-            found_skills.append(skill)
-
-    return found_skills
+    return shared_extract_skills(text)
 
 
 def extract_sections(text: str):

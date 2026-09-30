@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.routes.resume import router as resume_router
+from app.api.routes.job import router as job_router
 
 
 app = FastAPI(
@@ -11,18 +12,11 @@ app = FastAPI(
 
 
 app.include_router(resume_router)
+app.include_router(job_router)
 
 
 @app.get("/")
-def home():
-    return {
-        "message": "AI Resume Screening API is running",
-        "status": "ok"
-    }
-
-
-@app.get("/health")
-def health():
+def root():
     return {
         "message": "AI Resume Screening API is running"
     }

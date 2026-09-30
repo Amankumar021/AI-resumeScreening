@@ -1,0 +1,23 @@
+SKILL_LIST = [
+    "Python",
+    "C++",
+    "Java",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Node.js",
+    "SQL",
+    "MongoDB",
+    "PostgreSQL",
+    "Git",
+    "Docker",
+    "AWS",
+    "Machine Learning",
+    "Deep Learning",
+    "NLP",
+    "FastAPI",
+    "Django",
+    "Pandas",
+    "NumPy",
+    "scikit-learn"
+]
