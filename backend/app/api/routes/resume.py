@@ -1,3 +1,4 @@
+MAX_FILE_SIZE = 5 * 1024 * 1024
 from pathlib import Path
 
 from fastapi import (
@@ -14,12 +15,8 @@ from app.services.resume_service import process_resume
 
 from app.database import get_db
 from app.db_models import CandidateDB
-
-from app.utils.database_utils import list_to_json
-
-from app.utils.database_utils import json_to_list
-from app.db_models import CandidateDB
 from app.auth import get_current_user
+from app.utils.database_utils import list_to_json, json_to_list
 
 router = APIRouter(
     prefix="/resumes",
@@ -52,9 +49,16 @@ async def upload_resume(
         )
 
     # 2. Save uploaded file
-    file_path = UPLOAD_DIR / file.filename
-
     contents = await file.read()
+
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(
+        status_code=400,
+        detail="File size must be less than 5 MB."
+    )
+
+    safe_filename = Path(file.filename or "").name or "uploaded_resume"
+    file_path = UPLOAD_DIR / safe_filename
 
     with open(file_path, "wb") as buffer:
         buffer.write(contents)
@@ -125,7 +129,8 @@ async def upload_resume(
 
 @router.get("/")
 def get_candidates(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
     candidates = db.query(CandidateDB).all()
 

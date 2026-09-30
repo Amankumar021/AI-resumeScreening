@@ -56,7 +56,8 @@ async def create_job(
 
 @router.get("/")
 def get_jobs(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
     jobs = db.query(JobDB).all()
 
@@ -81,7 +82,10 @@ def get_jobs(
 
 
 @router.get("/test-db")
-def test_database(db: Session = Depends(get_db)):
+def test_database(
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
+):
     return {
         "message": "Database connection working"
     }

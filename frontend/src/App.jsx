@@ -13,6 +13,7 @@ import UploadResume from "./pages/UploadResume";
 
 import Compare from "./pages/Compare";
 import "./App.css";
+import Login from "./pages/Login";
 
 
 
@@ -63,6 +64,8 @@ function App() {
 
           <Routes>
 
+            <Route path="/login" element={<Login />} />
+
             <Route
               path="/"
               element={<Dashboard />}
@@ -84,14 +87,16 @@ function App() {
             />
 
             <Route
+              path="/compare"
+              element={<Compare />}
+            />
+
+            <Route
               path="/upload"
               element={<UploadResume />}
             />
 
-            <Route
-              path="/compare"
-              element={<Compare />}
-            />
+            
 
           </Routes>
 

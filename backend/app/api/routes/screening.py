@@ -183,7 +183,8 @@ def screen_candidate(
 
 @router.get("/")
 def get_screening_results(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
 ):
 
     results = db.query(ScreeningResultDB).all()
