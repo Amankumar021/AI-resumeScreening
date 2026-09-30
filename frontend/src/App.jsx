@@ -11,7 +11,9 @@ import Jobs from "./pages/jobs";
 import Screening from "./pages/Screening";
 import UploadResume from "./pages/UploadResume";
 
+import Compare from "./pages/Compare";
 import "./App.css";
+
 
 
 function App() {
@@ -48,6 +50,10 @@ function App() {
               Upload Resume
             </Link>
 
+            <Link to="/compare">
+              Compare
+            </Link>
+
           </nav>
 
         </aside>
@@ -80,6 +86,11 @@ function App() {
             <Route
               path="/upload"
               element={<UploadResume />}
+            />
+
+            <Route
+              path="/compare"
+              element={<Compare />}
             />
 
           </Routes>

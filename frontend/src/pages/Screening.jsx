@@ -1,90 +1,158 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
-export function ScreeningSection({ screenings = [] }) {
-  return (
-    <section className="panel screening-panel">
-      <div className="panel-header">
-        <div>
-          <p className="eyebrow">Review</p>
-          <h2>Screening</h2>
-        </div>
-        <button className="ghost-button" type="button">Open queue</button>
-      </div>
-
-      <div className="screening-list">
-        {screenings.map((entry) => (
-          <article className="screening-row" key={entry.name}>
-            <div className="screening-main">
-              <strong>{entry.name}</strong>
-              <span className="screening-meta">{entry.role}</span>
-            </div>
-            <span className="score-badge">{entry.score}</span>
-            <time>{entry.time}</time>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 function Screening() {
+
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
+
     api.get("/screening/")
-      .then((response) => {
+      .then(response => {
         setResults(response.data);
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(error => {
+        console.error("Screening error:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
+
   }, []);
+
+
+  if (loading) {
+    return <h2>Loading screening results...</h2>;
+  }
+
 
   return (
     <div>
-      <h1>Screening Results</h1>
+
+      <div className="page-header">
+
+        <div>
+          <h1>Screening Results</h1>
+
+          <p>
+            AI-generated job relevance analysis
+          </p>
+        </div>
+
+      </div>
+
 
       {results.length === 0 ? (
-        <p>No screening results found.</p>
-      ) : (
-        <div className="candidate-grid">
-          {results.map((result) => (
-            <div className="candidate-card" key={result.id}>
-              <h2>Screening #{result.id}</h2>
 
-              <p>Candidate ID: {result.candidate_id}</p>
-              <p>Job ID: {result.job_id}</p>
+        <div className="empty-state">
+          <h2>No screening results</h2>
 
-              <hr />
-
-              <p>
-                Required Skills:
-                <strong>{" "}{result.required_skill_score}%</strong>
-              </p>
-
-              <p>
-                Preferred Skills:
-                <strong>{" "}{result.preferred_skill_score}%</strong>
-              </p>
-
-              <p>
-                TF-IDF:
-                <strong>{" "}{result.tfidf_score}</strong>
-              </p>
-
-              <p>
-                Semantic Similarity:
-                <strong>{" "}{result.semantic_score}</strong>
-              </p>
-
-              <h3>Relevance Score: {result.overall_score}</h3>
-            </div>
-          ))}
+          <p>
+            Upload a resume and run screening
+            against a job.
+          </p>
         </div>
+
+      ) : (
+
+        <div className="screening-grid">
+
+          {results.map(result => (
+
+            <div
+              className="screening-card"
+              key={result.id}
+            >
+
+              <div className="screening-header">
+
+                <div>
+
+                  <h2>
+                    {result.candidate.name ||
+                      "Unknown Candidate"}
+                  </h2>
+
+                  <p>
+                    {result.candidate.email ||
+                      "No email"}
+                  </p>
+
+                </div>
+
+                <div className="score">
+
+                  {result.overall_score}
+
+                </div>
+
+              </div>
+
+
+              <p className="job-title">
+
+                Position:
+                {" "}
+                <strong>
+                  {result.job.title}
+                </strong>
+
+              </p>
+
+
+              <div className="score-row">
+
+                <div>
+                  <span>Required Skills</span>
+
+                  <strong>
+                    {result.required_skill_score}%
+                  </strong>
+                </div>
+
+
+                <div>
+                  <span>Preferred Skills</span>
+
+                  <strong>
+                    {result.preferred_skill_score}%
+                  </strong>
+                </div>
+
+
+                <div>
+                  <span>TF-IDF</span>
+
+                  <strong>
+                    {result.tfidf_score}
+                  </strong>
+                </div>
+
+
+                <div>
+                  <span>Semantic</span>
+
+                  <strong>
+                    {result.semantic_score}
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
       )}
+
     </div>
   );
 }
+
 
 export default Screening;

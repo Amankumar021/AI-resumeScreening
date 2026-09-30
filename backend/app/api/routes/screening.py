@@ -157,47 +157,75 @@ def screen_candidate(
     # --------------------------------
 
     return {
-        "screening_id": result.id,
+    "screening_id": result.id,
 
-        "candidate": {
-            "id": candidate.id,
-            "name": candidate.name
-        },
+    "candidate": {
+        "id": candidate.id,
+        "name": candidate.name,
+        "email": candidate.email
+    },
 
-        "job": {
-            "id": job.id,
-            "title": job.job_title
-        },
+    "job": {
+        "id": job.id,
+        "title": job.job_title
+    },
 
-        "analysis": {
-            "required_skill_match": required_match,
-
-            "preferred_skill_match": preferred_match,
-
-            "tfidf_similarity": tfidf_score,
-
-            "semantic_similarity": semantic_score,
-
-            "overall_relevance_score": overall_score
-        }
+    "analysis": {
+        "required_skill_match": required_match,
+        "preferred_skill_match": preferred_match,
+        "tfidf_similarity": tfidf_score,
+        "semantic_similarity": semantic_score,
+        "overall_relevance_score": overall_score
     }
+}
 
 @router.get("/")
 def get_screening_results(
     db: Session = Depends(get_db)
 ):
+
     results = db.query(ScreeningResultDB).all()
 
-    return [
-        {
+    response = []
+
+    for result in results:
+
+        candidate = db.query(CandidateDB).filter(
+            CandidateDB.id == result.candidate_id
+        ).first()
+
+        job = db.query(JobDB).filter(
+            JobDB.id == result.job_id
+        ).first()
+
+        response.append({
             "id": result.id,
-            "candidate_id": result.candidate_id,
-            "job_id": result.job_id,
-            "required_skill_score": result.required_skill_score,
-            "preferred_skill_score": result.preferred_skill_score,
-            "tfidf_score": result.tfidf_score,
-            "semantic_score": result.semantic_score,
-            "overall_score": result.overall_score
-        }
-        for result in results
-    ]
+
+            "candidate": {
+                "id": candidate.id if candidate else None,
+                "name": candidate.name if candidate else "Unknown",
+                "email": candidate.email if candidate else None
+            },
+
+            "job": {
+                "id": job.id if job else None,
+                "title": job.job_title if job else "Unknown"
+            },
+
+            "required_skill_score":
+                result.required_skill_score,
+
+            "preferred_skill_score":
+                result.preferred_skill_score,
+
+            "tfidf_score":
+                result.tfidf_score,
+
+            "semantic_score":
+                result.semantic_score,
+
+            "overall_score":
+                result.overall_score
+        })
+
+    return response
