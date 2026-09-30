@@ -28,3 +28,15 @@ def calculate_skill_match(
         "missing_skills": sorted(missing_skills),
         "match_percentage": round(match_percentage, 2)
     }
+
+from app.services.embedding_service import calculate_semantic_similarity
+
+def calculate_semantic_match(resume_text: str, job_description: str):
+    score = calculate_semantic_similarity(
+        resume_text,
+        job_description
+    )
+
+    return {
+        "semantic_similarity": score
+    }
