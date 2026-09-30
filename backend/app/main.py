@@ -11,10 +11,18 @@ app = FastAPI(
 
 
 app.include_router(resume_router)
-  
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "AI Resume Screening API is running",
+        "status": "ok"
+    }
+
 
 @app.get("/health")
-def root():
+def health():
     return {
         "message": "AI Resume Screening API is running"
     }

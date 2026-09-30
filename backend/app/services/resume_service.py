@@ -7,8 +7,12 @@ from app.services.resume_parser import (
 
 from app.services.text_cleaner import clean_text
 
+from app.services.information_extractor import (
+    extract_candidate_profile
+)
 
-def process_resume(file_path: str, file_type: str) -> str:
+
+def process_resume(file_path: str, file_type: str):
 
     path = Path(file_path)
 
@@ -23,4 +27,6 @@ def process_resume(file_path: str, file_type: str) -> str:
 
     cleaned_text = clean_text(text)
 
-    return cleaned_text
+    candidate_profile = extract_candidate_profile(cleaned_text)
+
+    return candidate_profile
