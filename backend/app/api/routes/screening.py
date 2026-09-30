@@ -181,3 +181,23 @@ def screen_candidate(
             "overall_relevance_score": overall_score
         }
     }
+
+@router.get("/")
+def get_screening_results(
+    db: Session = Depends(get_db)
+):
+    results = db.query(ScreeningResultDB).all()
+
+    return [
+        {
+            "id": result.id,
+            "candidate_id": result.candidate_id,
+            "job_id": result.job_id,
+            "required_skill_score": result.required_skill_score,
+            "preferred_skill_score": result.preferred_skill_score,
+            "tfidf_score": result.tfidf_score,
+            "semantic_score": result.semantic_score,
+            "overall_score": result.overall_score
+        }
+        for result in results
+    ]

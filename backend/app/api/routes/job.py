@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.job import JobProfile
 from app.database import get_db
 from app.db_models import JobDB
-from app.utils.database_utils import list_to_json
+from app.utils.database_utils import json_to_list, list_to_json
 
 
 router = APIRouter(
@@ -53,8 +53,35 @@ async def create_job(
         "job": job
     }
 
+@router.get("/")
+def get_jobs(
+    db: Session = Depends(get_db)
+):
+    jobs = db.query(JobDB).all()
+
+    return [
+        {
+            "id": job.id,
+            "job_title": job.job_title,
+            "required_skills": json_to_list(
+                job.required_skills
+            ),
+            "preferred_skills": json_to_list(
+                job.preferred_skills
+            ),
+            "education": json_to_list(
+                job.education
+            ),
+            "experience": job.experience,
+            "job_description": job.job_description,
+        }
+        for job in jobs
+    ]
+
+
 @router.get("/test-db")
 def test_database(db: Session = Depends(get_db)):
     return {
         "message": "Database connection working"
     }
+

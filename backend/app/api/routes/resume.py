@@ -17,6 +17,8 @@ from app.db_models import CandidateDB
 
 from app.utils.database_utils import list_to_json
 
+from app.utils.database_utils import json_to_list
+from app.db_models import CandidateDB
 
 router = APIRouter(
     prefix="/resumes",
@@ -118,3 +120,23 @@ async def upload_resume(
             "projects": candidate_profile.projects
         }
     }
+
+@router.get("/")
+def get_candidates(
+    db: Session = Depends(get_db)
+):
+    candidates = db.query(CandidateDB).all()
+
+    return [
+        {
+            "id": candidate.id,
+            "name": candidate.name,
+            "email": candidate.email,
+            "phone": candidate.phone,
+            "skills": json_to_list(candidate.skills),
+            "education": json_to_list(candidate.education),
+            "experience": json_to_list(candidate.experience),
+            "projects": json_to_list(candidate.projects)
+        }
+        for candidate in candidates
+    ]

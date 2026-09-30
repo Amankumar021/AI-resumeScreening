@@ -1,15 +1,22 @@
-import "./index.css";
 import { useEffect, useState } from "react";
 import api from "./services/api";
 import "./index.css";
+import UploadResume from "./pages/UploadResume";
+
 
 function App() {
 
-    const [backendStatus, setBackendStatus] = useState(
+  const [candidates, setCandidates] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [screenings, setScreenings] = useState([]);
+
+  const [backendStatus, setBackendStatus] = useState(
     "Connecting..."
   );
 
+
   useEffect(() => {
+
     api.get("/")
       .then((response) => {
         setBackendStatus(response.data.message);
@@ -17,7 +24,36 @@ function App() {
       .catch(() => {
         setBackendStatus("Backend connection failed");
       });
+
+
+    api.get("/resumes/")
+      .then((response) => {
+        setCandidates(response.data);
+      })
+      .catch((error) => {
+        console.error("Candidates error:", error);
+      });
+
+
+    api.get("/jobs/")
+      .then((response) => {
+        setJobs(response.data);
+      })
+      .catch((error) => {
+        console.error("Jobs error:", error);
+      });
+
+
+    api.get("/screening/")
+      .then((response) => {
+        setScreenings(response.data);
+      })
+      .catch((error) => {
+        console.error("Screenings error:", error);
+      });
+
   }, []);
+
 
   return (
     <div className="app">
@@ -47,17 +83,19 @@ function App() {
 
           <div className="stat-card">
             <h3>Total Candidates</h3>
-            <p>0</p>
+            <p>{candidates.length}</p>
           </div>
+
 
           <div className="stat-card">
             <h3>Total Jobs</h3>
-            <p>0</p>
+            <p>{jobs.length}</p>
           </div>
+
 
           <div className="stat-card">
             <h3>Screenings</h3>
-            <p>0</p>
+            <p>{screenings.length}</p>
           </div>
 
         </section>
@@ -73,7 +111,10 @@ function App() {
             semantic matching.
           </p>
 
-          <p>{backendStatus}</p>
+          <p className="backend-status">
+            {backendStatus}
+          </p>
+          <UploadResume />
 
         </section>
 
@@ -82,5 +123,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
