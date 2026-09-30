@@ -1,126 +1,95 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
-import "./index.css";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link
+} from "react-router-dom";
+
+import Dashboard from "./pages/Dashboard";
+import Candidates from "./pages/Candidates";
+import Jobs from "./pages/jobs";
+import Screening from "./pages/Screening";
 import UploadResume from "./pages/UploadResume";
+
+import "./App.css";
 
 
 function App() {
 
-  const [candidates, setCandidates] = useState([]);
-  const [jobs, setJobs] = useState([]);
-  const [screenings, setScreenings] = useState([]);
-
-  const [backendStatus, setBackendStatus] = useState(
-    "Connecting..."
-  );
-
-
-  useEffect(() => {
-
-    api.get("/")
-      .then((response) => {
-        setBackendStatus(response.data.message);
-      })
-      .catch(() => {
-        setBackendStatus("Backend connection failed");
-      });
-
-
-    api.get("/resumes/")
-      .then((response) => {
-        setCandidates(response.data);
-      })
-      .catch((error) => {
-        console.error("Candidates error:", error);
-      });
-
-
-    api.get("/jobs/")
-      .then((response) => {
-        setJobs(response.data);
-      })
-      .catch((error) => {
-        console.error("Jobs error:", error);
-      });
-
-
-    api.get("/screening/")
-      .then((response) => {
-        setScreenings(response.data);
-      })
-      .catch((error) => {
-        console.error("Screenings error:", error);
-      });
-
-  }, []);
-
-
   return (
-    <div className="app">
 
-      <aside className="sidebar">
+    <BrowserRouter>
 
-        <h2>AI Resume</h2>
+      <div className="app">
 
-        <nav>
-          <a href="#">Dashboard</a>
-          <a href="#">Candidates</a>
-          <a href="#">Jobs</a>
-          <a href="#">Screening</a>
-        </nav>
+        <aside className="sidebar">
 
-      </aside>
+          <h2>AI Resume</h2>
 
+          <nav>
 
-      <main className="main-content">
+            <Link to="/">
+              Dashboard
+            </Link>
 
-        <header className="topbar">
-          <h1>Recruiter Dashboard</h1>
-        </header>
+            <Link to="/candidates">
+              Candidates
+            </Link>
 
+            <Link to="/jobs">
+              Jobs
+            </Link>
 
-        <section className="stats">
+            <Link to="/screening">
+              Screening
+            </Link>
 
-          <div className="stat-card">
-            <h3>Total Candidates</h3>
-            <p>{candidates.length}</p>
-          </div>
+            <Link to="/upload">
+              Upload Resume
+            </Link>
 
+          </nav>
 
-          <div className="stat-card">
-            <h3>Total Jobs</h3>
-            <p>{jobs.length}</p>
-          </div>
-
-
-          <div className="stat-card">
-            <h3>Screenings</h3>
-            <p>{screenings.length}</p>
-          </div>
-
-        </section>
+        </aside>
 
 
-        <section className="welcome-card">
+        <main className="main-content">
 
-          <h2>AI Resume Screening System</h2>
+          <Routes>
 
-          <p>
-            Upload resumes, create jobs and analyze
-            candidate-job relevance using NLP and
-            semantic matching.
-          </p>
+            <Route
+              path="/"
+              element={<Dashboard />}
+            />
 
-          <p className="backend-status">
-            {backendStatus}
-          </p>
-          <UploadResume />
+            <Route
+              path="/candidates"
+              element={<Candidates />}
+            />
 
-        </section>
+            <Route
+              path="/jobs"
+              element={<Jobs />}
+            />
 
-      </main>
+            <Route
+              path="/screening"
+              element={<Screening />}
+            />
 
-    </div>
+            <Route
+              path="/upload"
+              element={<UploadResume />}
+            />
+
+          </Routes>
+
+        </main>
+
+      </div>
+
+    </BrowserRouter>
+
   );
 }
 
