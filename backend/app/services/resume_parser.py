@@ -1,7 +1,21 @@
 from pathlib import Path
 
-import fitz
+try:
+    import fitz
+except ModuleNotFoundError as exc:
+    fitz = None
+    FITZ_IMPORT_ERROR = exc
+else:
+    FITZ_IMPORT_ERROR = None
+
 from docx import Document
+
+
+def _require_fitz():
+    if fitz is None:
+        raise RuntimeError(
+            "PyMuPDF (fitz) is not installed. Run: pip install -r requirements.txt"
+        ) from FITZ_IMPORT_ERROR
 
 
 def extract_text_from_pdf(file_path: str) -> str:
@@ -12,6 +26,8 @@ def extract_text_from_pdf(file_path: str) -> str:
 
     if path.stat().st_size == 0:
         raise ValueError(f"PDF file is empty: {file_path}")
+
+    _require_fitz()
 
     try:
         with fitz.open(file_path) as document:

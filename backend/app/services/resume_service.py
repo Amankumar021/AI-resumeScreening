@@ -25,8 +25,11 @@ def process_resume(file_path: str, file_type: str):
     else:
         raise ValueError("Unsupported file type")
 
+    # Clean extracted text
     cleaned_text = clean_text(text)
 
+    # Extract candidate information
     candidate_profile = extract_candidate_profile(cleaned_text)
 
-    return candidate_profile
+    # Return both
+    return candidate_profile, cleaned_text
