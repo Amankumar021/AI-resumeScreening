@@ -1,73 +1,43 @@
-from app.services.matching_service import calculate_skill_match
-
-
-candidate_skills = [
-    "Python",
-    "C++",
-    "SQL",
-    "React"
-]
-
-required_skills = [
-    "Python",
-    "C++",
-    "SQL",
-    "Git"
-]
-
-
-result = calculate_skill_match(
-    candidate_skills,
-    required_skills
+from app.services.matching_service import (
+    calculate_ats_score,
+    calculate_preferred_skill_match,
+    calculate_skill_match,
 )
 
 
-print(result)
-
-
-def calculate_preferred_skill_match(
-    candidate_skills,
-    preferred_skills
-):
-    candidate_set = {
-        skill.lower()
-        for skill in candidate_skills
-    }
-
-    preferred_set = {
-        skill.lower()
-        for skill in preferred_skills
-    }
-
-    matched_skills = candidate_set & preferred_set
-    missing_skills = preferred_set - candidate_set
-
-    if not preferred_set:
-        match_percentage = 0.0
-    else:
-        match_percentage = (
-            len(matched_skills)
-            / len(preferred_set)
-        ) * 100
-
-    return {
-        "matched_skills": sorted(matched_skills),
-        "missing_skills": sorted(missing_skills),
-        "match_percentage": round(match_percentage, 2)
-    }
-
-def analyze_candidate(candidate_skills, job):
-    required_result = calculate_skill_match(
-        candidate_skills,
-        job.required_skills
+def test_required_skills_match_case_and_punctuation_variants():
+    result = calculate_skill_match(
+        ["NODE JS", "Postgres", "C++"],
+        ["Node.js", "PostgreSQL", "C#"]
     )
 
-    preferred_result = calculate_preferred_skill_match(
+    assert result == {
+        "matched_skills": ["node.js", "postgresql"],
+        "missing_skills": ["c#"],
+        "match_percentage": 66.67
+    }
+
+
+def test_preferred_skills_match_independently_from_required_skills():
+    candidate_skills = ["python", "React.js"]
+
+    required = calculate_skill_match(candidate_skills, ["Python", "SQL"])
+    preferred = calculate_preferred_skill_match(
         candidate_skills,
-        job.preferred_skills
+        ["React", "AWS"]
     )
 
-    return {
-        "required_skills": required_result,
-        "preferred_skills": preferred_result
-    }
+    assert required["matched_skills"] == ["python"]
+    assert required["missing_skills"] == ["sql"]
+    assert preferred["matched_skills"] == ["react"]
+    assert preferred["match_percentage"] == 50.0
+
+
+def test_ats_score_weights_required_skills_more_than_preferred_skills():
+    ats_score = calculate_ats_score(
+        ["python", "sql", "react"],
+        ["python", "sql", "docker"],
+        ["react", "aws"]
+    )
+
+    assert ats_score == 70.0

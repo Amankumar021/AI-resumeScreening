@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Float
+from sqlalchemy import Column, Integer, String, Text, Float, UniqueConstraint
 from app.database import Base
 from sqlalchemy import Boolean
 
@@ -25,6 +25,7 @@ class JobDB(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     job_title = Column(String, nullable=True)
+    seats_available = Column(Integer, nullable=False, default=1)
 
     required_skills = Column(Text, nullable=True)
     preferred_skills = Column(Text, nullable=True)
@@ -47,6 +48,18 @@ class ScreeningResultDB(Base):
     tfidf_score = Column(Float)
     semantic_score = Column(Float)
     overall_score = Column(Float)
+
+
+class InterviewShortlistDB(Base):
+    __tablename__ = "interview_shortlists"
+    __table_args__ = (
+        UniqueConstraint("candidate_id", "job_id", name="uq_shortlist_candidate_job"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    candidate_id = Column(Integer, nullable=False, index=True)
+    job_id = Column(Integer, nullable=False, index=True)
+
 
 class UserDB(Base):
     __tablename__ = "users"

@@ -118,6 +118,79 @@ body {
   font-size: 13px;
 }
 
+.job-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  margin-bottom: 28px;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.job-form h2 {
+  grid-column: 1 / -1;
+  font-size: 1.2rem;
+}
+
+.job-form label {
+  display: grid;
+  gap: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.job-form input,
+.job-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+}
+
+.job-form textarea {
+  resize: vertical;
+}
+
+.job-form button {
+  justify-self: start;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 6px;
+  background: #176b5b;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+}
+
+.job-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.job-feedback {
+  margin: -12px 0 18px;
+}
+
+.job-error {
+  color: #b42318;
+}
+
+.job-success {
+  color: #176b5b;
+}
+
+.job-list-title {
+  margin-bottom: 14px;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -137,6 +210,58 @@ body {
     minmax(380px, 1fr)
   );
   gap: 20px;
+}
+
+.screening-controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.screening-controls label {
+  display: grid;
+  gap: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.screening-controls select {
+  min-width: 220px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+}
+
+.screening-controls button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 6px;
+  background: #176b5b;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+}
+
+.screening-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.screening-error {
+  margin-bottom: 16px;
+  color: #b42318;
+}
+
+.screening-hint {
+  margin-bottom: 16px;
+  color: #6b7280;
 }
 
 .screening-card {
@@ -207,6 +332,31 @@ body {
   min-width: 250px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+  .job-form {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .job-form button {
+    width: 100%;
+  }
+
+  .screening-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .screening-controls select,
+  .screening-controls button {
+    width: 100%;
+  }
+
+  .screening-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .comparison-table {

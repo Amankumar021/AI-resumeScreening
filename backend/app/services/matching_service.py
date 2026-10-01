@@ -1,10 +1,40 @@
+import re
+
 from app.services.text_similarity import calculate_text_similarity
 from app.services.embedding_service import calculate_semantic_similarity
 from app.services.scoring_service import calculate_final_score
 
+
+SKILL_ALIASES = {
+    "js": "javascript",
+    "node": "nodejs",
+    "reactjs": "react",
+    "postgres": "postgresql",
+    "sklearn": "scikitlearn",
+    "cplusplus": "c++",
+    "csharp": "c#",
+    "ml": "machinelearning",
+    "dl": "deeplearning",
+}
+
+
+def _normalize_skill(skill):
+    normalized = re.sub(r"[^a-z0-9+#]", "", skill.casefold())
+    return SKILL_ALIASES.get(normalized, normalized)
+
+
+def _skill_map(skills):
+    return {
+        _normalize_skill(skill): skill.strip().lower()
+        for skill in skills
+        if isinstance(skill, str) and skill.strip()
+    }
+
+
 def calculate_skill_match(candidate_skills, required_skills):
-    candidate_set = {skill.lower() for skill in candidate_skills}
-    required_set = {skill.lower() for skill in required_skills}
+    candidate_set = set(_skill_map(candidate_skills))
+    required_map = _skill_map(required_skills)
+    required_set = set(required_map)
 
     matched_skills = candidate_set & required_set
     missing_skills = required_set - candidate_set
@@ -17,8 +47,8 @@ def calculate_skill_match(candidate_skills, required_skills):
         ) * 100
 
     return {
-        "matched_skills": sorted(matched_skills),
-        "missing_skills": sorted(missing_skills),
+        "matched_skills": sorted(required_map[skill] for skill in matched_skills),
+        "missing_skills": sorted(required_map[skill] for skill in missing_skills),
         "match_percentage": round(match_percentage, 2)
     }
 
@@ -27,8 +57,9 @@ def calculate_preferred_skill_match(
     candidate_skills,
     preferred_skills
 ):
-    candidate_set = {skill.lower() for skill in candidate_skills}
-    preferred_set = {skill.lower() for skill in preferred_skills}
+    candidate_set = set(_skill_map(candidate_skills))
+    preferred_map = _skill_map(preferred_skills)
+    preferred_set = set(preferred_map)
 
     matched_skills = candidate_set & preferred_set
 
@@ -40,7 +71,7 @@ def calculate_preferred_skill_match(
         ) * 100
 
     return {
-        "matched_skills": sorted(matched_skills),
+        "matched_skills": sorted(preferred_map[skill] for skill in matched_skills),
         "match_percentage": round(match_percentage, 2)
     }
 

@@ -7,12 +7,28 @@ from app.services.skill_extractor import extract_skills as shared_extract_skills
 SECTION_HEADERS = {
     "education",
     "skills",
+    "technical skills",
+    "key skills",
+    "core competencies",
     "experience",
     "work experience",
     "projects",
     "certifications",
     "summary",
     "objective"
+}
+
+SKILL_LINE_CATEGORIES = {
+    "programming languages",
+    "web development",
+    "tools & platforms",
+    "tools and platforms",
+    "frameworks",
+    "libraries",
+    "databases",
+    "platforms",
+    "technologies",
+    "cloud platforms",
 }
 
 
@@ -63,7 +79,28 @@ def extract_name(text: str):
 
 
 def extract_skills(text: str):
-    return shared_extract_skills(text)
+    found_skills = shared_extract_skills(text)
+
+    for line in extract_sections(text).get("skills", []):
+        if ":" in line:
+            category, line = line.split(":", 1)
+            if category.casefold().strip() not in SKILL_LINE_CATEGORIES:
+                continue
+
+        for skill in re.split(r"[,;|]", line):
+            skill = re.sub(r"^[\s\-*•]+", "", skill).strip()
+            if (
+                skill
+                and len(skill.split()) <= 6
+                and not re.search(r"[!?]", skill)
+            ):
+                found_skills.append(skill)
+
+    unique_skills = {}
+    for skill in found_skills:
+        unique_skills.setdefault(skill.casefold(), skill)
+
+    return list(unique_skills.values())
 
 
 def extract_sections(text: str):
@@ -79,11 +116,19 @@ def extract_sections(text: str):
         if not line:
             continue
 
-        normalized = line.lower()
+        normalized = line.lower().rstrip(":").strip()
 
         if normalized in SECTION_HEADERS:
 
-            current_section = normalized
+            current_section = (
+                "skills"
+                if normalized in {
+                    "technical skills",
+                    "key skills",
+                    "core competencies"
+                }
+                else normalized
+            )
             sections[current_section] = []
 
         elif current_section:

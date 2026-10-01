@@ -10,6 +10,7 @@ function Login() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -22,6 +23,13 @@ function Login() {
     try {
       setLoading(true);
       setMessage("");
+
+      if (isRegistering) {
+        await api.post("/auth/register", {
+          username,
+          password
+        });
+      }
 
       const response = await api.post("/auth/login", {
         username,
@@ -44,7 +52,7 @@ function Login() {
 
       setMessage(
         error.response?.data?.detail ||
-        "Login failed."
+        (isRegistering ? "Account creation failed." : "Login failed.")
       );
     } finally {
       setLoading(false);
@@ -59,7 +67,7 @@ function Login() {
         <h1>AI Resume Screening</h1>
 
         <p className="login-subtitle">
-          Recruiter Login
+          {isRegistering ? "Create a recruiter account" : "Recruiter Login"}
         </p>
 
         <form onSubmit={handleLogin}>
@@ -86,10 +94,25 @@ function Login() {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading
+              ? (isRegistering ? "Creating account..." : "Logging in...")
+              : (isRegistering ? "Create account" : "Login")}
           </button>
 
         </form>
+
+        <p className="login-message">
+          {isRegistering ? "Already have an account?" : "Need an account?"}{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegistering(!isRegistering);
+              setMessage("");
+            }}
+          >
+            {isRegistering ? "Login" : "Register"}
+          </button>
+        </p>
 
         {message && (
           <p className="login-message">

@@ -19,6 +19,8 @@ fastapi
 uvicorn
 python-multipart
 pymupdf
+Pillow
+pytesseract
 python-docx
 pydantic
 sqlalchemy

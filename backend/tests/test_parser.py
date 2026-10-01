@@ -1,22 +1,42 @@
-import sys
-from pathlib import Path
+import fitz
 
-from app.services.resume_parser import extract_text_from_pdf
+from app.services import resume_parser
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-candidates = [
-    BASE_DIR / "uploads" / "resume.pdf",
-    BASE_DIR / "uploads" / "16511249.pdf",
-    BASE_DIR / "uploads" / "23628651.pdf",
-]
-file_path = next(
-    (path for path in candidates if path.exists() and path.stat().st_size > 0),
-    candidates[0],
-)
 
-text = extract_text_from_pdf(str(file_path))
+def test_pdf_parser_uses_native_text_when_available(tmp_path):
+    pdf_path = tmp_path / "text-resume.pdf"
+    document = fitz.open()
+    page = document.new_page()
+    page.insert_text((72, 72), "Native resume text")
+    document.save(pdf_path)
+    document.close()
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
+    assert resume_parser.extract_text_from_pdf(str(pdf_path)) == "Native resume text"
 
-print(text)
+
+def test_pdf_parser_uses_ocr_for_image_only_pages(monkeypatch, tmp_path):
+    pdf_path = tmp_path / "scanned-resume.pdf"
+    document = fitz.open()
+    document.new_page()
+    document.save(pdf_path)
+    document.close()
+
+    monkeypatch.setattr(resume_parser, "_ocr_page", lambda page: "OCR resume text")
+
+    assert resume_parser.extract_text_from_pdf(str(pdf_path)) == "OCR resume text"
+
+
+def test_ocr_uses_tesseract_command_from_environment(monkeypatch):
+    import pytesseract
+
+    configured_command = r"C:\OCR\tesseract.exe"
+    monkeypatch.setenv("TESSERACT_CMD", configured_command)
+    monkeypatch.setattr(pytesseract, "image_to_string", lambda image: "OCR text")
+
+    document = fitz.open()
+    try:
+        assert resume_parser._ocr_page(document.new_page()) == "OCR text"
+    finally:
+        document.close()
+
+    assert pytesseract.pytesseract.tesseract_cmd == configured_command

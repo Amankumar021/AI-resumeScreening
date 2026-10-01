@@ -12,12 +12,13 @@ router = APIRouter(
     tags=["Jobs"]
 )
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
 class JobProfile(BaseModel):
     job_title: Optional[str] = None
+    seats_available: int = Field(default=1, ge=1)
 
     job_description: Optional[str] = None
 
@@ -37,6 +38,7 @@ async def create_job(
 ):
     db_job = JobDB(
         job_title=job.job_title,
+        seats_available=job.seats_available,
         required_skills=list_to_json(job.required_skills),
         preferred_skills=list_to_json(job.preferred_skills),
         education=list_to_json(job.education),
@@ -65,6 +67,7 @@ def get_jobs(
         {
             "id": job.id,
             "job_title": job.job_title,
+            "seats_available": job.seats_available or 1,
             "required_skills": json_to_list(
                 job.required_skills
             ),

@@ -4,200 +4,149 @@ import api from "../services/api";
 
 function Compare() {
 
+  const [candidates, setCandidates] = useState([]);
   const [results, setResults] = useState([]);
-
-  const [candidateA, setCandidateA] =
-    useState("");
-
-  const [candidateB, setCandidateB] =
-    useState("");
+  const [candidateA, setCandidateA] = useState("");
+  const [candidateB, setCandidateB] = useState("");
+  const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
+    Promise.all([
+      api.get("/resumes/"),
+      api.get("/screening/")
+    ])
+      .then(([candidateResponse, screeningResponse]) => {
+        const candidateList = Array.isArray(candidateResponse.data)
+          ? candidateResponse.data
+          : [];
 
-    api.get("/screening/")
-      .then(response => {
-        setResults(response.data);
+        const screeningList = Array.isArray(screeningResponse.data)
+          ? screeningResponse.data
+          : [];
+
+        setCandidates(candidateList);
+        setResults(screeningList);
+
+        if (candidateList.length > 0 && !candidateA) {
+          setCandidateA(String(candidateList[0].id));
+        }
+
+        if (candidateList.length > 1 && !candidateB) {
+          setCandidateB(String(candidateList[1].id));
+        }
       })
       .catch(error => {
-        console.error(error);
+        console.error("Compare data error:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-
   }, []);
 
 
-  const selectedA = results.find(
-    result =>
-      result.candidate.id === Number(candidateA)
+  const selectedA = candidates.find(
+    candidate => String(candidate.id) === String(candidateA)
+  );
+
+  const selectedB = candidates.find(
+    candidate => String(candidate.id) === String(candidateB)
+  );
+
+  const screeningMatchA = results.find(
+    result => String(result.candidate?.id) === String(candidateA)
+  );
+
+  const screeningMatchB = results.find(
+    result => String(result.candidate?.id) === String(candidateB)
   );
 
 
-  const selectedB = results.find(
-    result =>
-      result.candidate.id === Number(candidateB)
-  );
+  if (loading) {
+    return <h2>Loading comparison data...</h2>;
+  }
 
+  if (candidates.length === 0) {
+    return (
+      <div>
+        <h1>Candidate Comparison</h1>
+        <p>No candidates are available yet. Upload a resume to begin comparing profiles.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
-
       <h1>Candidate Comparison</h1>
-
-      <p>
-        Compare screening signals side by side.
-      </p>
-
+      <p>Compare candidate profiles and screening performance side by side.</p>
 
       <div className="compare-selectors">
-
-        <select
-          value={candidateA}
-          onChange={e =>
-            setCandidateA(e.target.value)
-          }
-        >
-
-          <option value="">
-            Select Candidate A
-          </option>
-
-          {results.map(result => (
-
-            <option
-              key={`a-${result.id}`}
-              value={result.candidate.id}
-            >
-              {result.candidate.name}
+        <select value={candidateA} onChange={event => setCandidateA(event.target.value)}>
+          <option value="">Select Candidate A</option>
+          {candidates.map(candidate => (
+            <option key={`a-${candidate.id}`} value={candidate.id}>
+              {candidate.name || "Unknown Candidate"}
             </option>
-
           ))}
-
         </select>
 
-
-        <select
-          value={candidateB}
-          onChange={e =>
-            setCandidateB(e.target.value)
-          }
-        >
-
-          <option value="">
-            Select Candidate B
-          </option>
-
-          {results.map(result => (
-
-            <option
-              key={`b-${result.id}`}
-              value={result.candidate.id}
-            >
-              {result.candidate.name}
+        <select value={candidateB} onChange={event => setCandidateB(event.target.value)}>
+          <option value="">Select Candidate B</option>
+          {candidates.map(candidate => (
+            <option key={`b-${candidate.id}`} value={candidate.id}>
+              {candidate.name || "Unknown Candidate"}
             </option>
-
           ))}
-
         </select>
-
       </div>
 
-
       {selectedA && selectedB && (
-
         <div className="comparison-table">
-
           <div></div>
+          <h2>{selectedA.name || "Unknown Candidate"}</h2>
+          <h2>{selectedB.name || "Unknown Candidate"}</h2>
 
-          <h2>
-            {selectedA.candidate.name}
-          </h2>
+          <strong>Email</strong>
+          <span>{selectedA.email || "N/A"}</span>
+          <span>{selectedB.email || "N/A"}</span>
 
-          <h2>
-            {selectedB.candidate.name}
-          </h2>
+          <strong>Skills</strong>
+          <span>{(selectedA.skills || []).join(", ") || "No skills listed"}</span>
+          <span>{(selectedB.skills || []).join(", ") || "No skills listed"}</span>
 
+          <strong>Education</strong>
+          <span>{(selectedA.education || []).join("; ") || "No education listed"}</span>
+          <span>{(selectedB.education || []).join("; ") || "No education listed"}</span>
 
-          <strong>
-            Job
-          </strong>
+          <strong>Experience</strong>
+          <span>{(selectedA.experience || []).join("; ") || "No experience listed"}</span>
+          <span>{(selectedB.experience || []).join("; ") || "No experience listed"}</span>
 
-          <span>
-            {selectedA.job.title}
-          </span>
+          <strong>Job</strong>
+          <span>{screeningMatchA?.job?.title || "Not screened yet"}</span>
+          <span>{screeningMatchB?.job?.title || "Not screened yet"}</span>
 
-          <span>
-            {selectedB.job.title}
-          </span>
+          <strong>Required Skills</strong>
+          <span>{screeningMatchA ? `${screeningMatchA.required_skill_score}%` : "N/A"}</span>
+          <span>{screeningMatchB ? `${screeningMatchB.required_skill_score}%` : "N/A"}</span>
 
+          <strong>Preferred Skills</strong>
+          <span>{screeningMatchA ? `${screeningMatchA.preferred_skill_score}%` : "N/A"}</span>
+          <span>{screeningMatchB ? `${screeningMatchB.preferred_skill_score}%` : "N/A"}</span>
 
-          <strong>
-            Required Skills
-          </strong>
+          <strong>TF-IDF</strong>
+          <span>{screeningMatchA?.tfidf_score ?? "N/A"}</span>
+          <span>{screeningMatchB?.tfidf_score ?? "N/A"}</span>
 
-          <span>
-            {selectedA.required_skill_score}%
-          </span>
+          <strong>Semantic Similarity</strong>
+          <span>{screeningMatchA?.semantic_score ?? "N/A"}</span>
+          <span>{screeningMatchB?.semantic_score ?? "N/A"}</span>
 
-          <span>
-            {selectedB.required_skill_score}%
-          </span>
-
-
-          <strong>
-            Preferred Skills
-          </strong>
-
-          <span>
-            {selectedA.preferred_skill_score}%
-          </span>
-
-          <span>
-            {selectedB.preferred_skill_score}%
-          </span>
-
-
-          <strong>
-            TF-IDF
-          </strong>
-
-          <span>
-            {selectedA.tfidf_score}
-          </span>
-
-          <span>
-            {selectedB.tfidf_score}
-          </span>
-
-
-          <strong>
-            Semantic Similarity
-          </strong>
-
-          <span>
-            {selectedA.semantic_score}
-          </span>
-
-          <span>
-            {selectedB.semantic_score}
-          </span>
-
-
-          <strong>
-            Overall Relevance
-          </strong>
-
-          <span>
-            {selectedA.overall_score}
-          </span>
-
-          <span>
-            {selectedB.overall_score}
-          </span>
-
+          <strong>Overall Relevance</strong>
+          <span>{screeningMatchA?.overall_score ?? "N/A"}</span>
+          <span>{screeningMatchB?.overall_score ?? "N/A"}</span>
         </div>
-
       )}
-
     </div>
   );
 }
