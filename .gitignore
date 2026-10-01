@@ -17,3 +17,16 @@ node_modules/
 
 # Build
 dist/
+.env
+*.env
+
+backend/venv/
+backend/__pycache__/
+frontend/node_modules/
+frontend/dist/
+
+*.pyc
+__pycache__/
+
+resume_screening.db
+uploads/
